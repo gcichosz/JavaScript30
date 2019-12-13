@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+  <script>
+    let cities = [];
+
+    const findCities = (query) => cities.filter(({ city, state }) => city.toLowerCase().includes(query) || state.toLowerCase().includes(query));
+
+    const createCitiesListElements = (query) => {
+      query = query.toLowerCase();
+
+      const mapCityToListElement = (city) => {
+        const liElement = document.createElement('li');
+        const nameElement = document.createElement('span');
+        const populationElement = document.createElement('span');
+        populationElement.classList.add('population');
+
+        const cityFullName = `${city.city}, ${city.state}`.toLowerCase();
+        const cityFullNameHighlighted = cityFullName.replace(new RegExp(`${query}`, 'g'), `<span class="hl">${query}</span>`);
+        nameElement.innerHTML = cityFullNameHighlighted;
+        populationElement.innerText = city.population;
+
+        liElement.appendChild(nameElement);
+        liElement.appendChild(populationElement);
+        return liElement;
+      }
+
+      const matchedCities = findCities(query);
+      return matchedCities.map(mapCityToListElement);
+    }
+
+    const removeCurrentListElements = (listElement) => {
+      const currentListElements = listElement.querySelectorAll('li');
+      currentListElements.forEach(li => li.remove());
+    }
+
+    const addNewListElements = (listElement, listElements) => listElements.forEach(li => listElement.appendChild(li));
+
+    const refreshMatchedCitiesList = (listElements) => {
+      const listElement = document.querySelector('ul');
+      removeCurrentListElements(listElement);
+      addNewListElements(listElement, listElements);
+    }
+
+    function refreshMatchedCities() {
+      const matchedCitiesListElements = createCitiesListElements(this.value);
+      refreshMatchedCitiesList(matchedCitiesListElements);
+    }
+
+    (async function () {
+      const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+      const citiesResponse = await fetch(endpoint);
+      cities = await citiesResponse.json();
+
+      const search = document.querySelector('input.search');
+      search.addEventListener('input', refreshMatchedCities);
+    })();
+
+  </script>
+</body>
+
+</html>
