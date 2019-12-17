@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>HTML5 Canvas</title>
+</head>
+
+<body>
+  <canvas id="draw" width="800" height="800"></canvas>
+  <script>
+    function calculateLineWidth(modulatorNumber) {
+      return Math.abs(modulatorNumber % 150 - 75);
+    }
+
+    function calculateStrokeStyle(modulatorNumber) {
+      return `hsl(${modulatorNumber}deg, 100%, 50%)`;
+    }
+
+    function initCanvas(canvasId) {
+      const drawCanvas = document.getElementById(canvasId);
+
+      drawCanvas.width = window.innerWidth;
+      drawCanvas.height = window.innerHeight;
+
+      drawCanvas.drawContext = drawCanvas.getContext('2d');
+
+      drawCanvas.drawing = false;
+      drawCanvas.styleModulator = 1;
+
+      drawCanvas.drawContext.lineCap = 'round';
+      drawCanvas.drawContext.lineWidth = calculateLineWidth(drawCanvas.styleModulator);
+      drawCanvas.drawContext.strokeStyle = calculateStrokeStyle(drawCanvas.styleModulator);
+
+      return drawCanvas;
+    }
+
+    function startDrawing(event) {
+      this.drawContext.beginPath();
+      this.drawContext.moveTo(event.clientX, event.clientY);
+      this.drawing = true;
+    }
+
+    function drawLinePart(event) {
+      if (this.drawing) {
+        this.drawContext.lineTo(event.clientX, event.clientY);
+        this.drawContext.stroke();
+        this.drawContext.beginPath();
+
+        this.styleModulator++;
+        this.drawContext.lineWidth = calculateLineWidth(this.styleModulator);
+        this.drawContext.strokeStyle = calculateStrokeStyle(this.styleModulator);
+      }
+
+      this.drawContext.moveTo(event.clientX, event.clientY);
+    }
+
+    function stopDrawing(event) {
+      this.drawing = false;
+    }
+
+    (function () {
+      const drawCanvas = initCanvas('draw');
+
+      drawCanvas.addEventListener('mousedown', startDrawing);
+
+      drawCanvas.addEventListener('mousemove', drawLinePart);
+
+      drawCanvas.addEventListener('mouseup', stopDrawing);
+    })();
+  </script>
+
+  <style>
+    html,
+    body {
+      margin: 0;
+    }
+  </style>
+
+</body>
+
+</html>
