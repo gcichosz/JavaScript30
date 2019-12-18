@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Console Tricks!</title>
+</head>
+<body>
+
+  <p onClick="makeGreen()">×BREAK×DOWN×</p>
+
+  <script>
+    const dogs = [{ name: 'Snickers', age: 2 }, { name: 'hugo', age: 8 }];
+
+    function makeGreen() {
+      const p = document.querySelector('p');
+      p.style.color = '#BADA55';
+      p.style.fontSize = '50px';
+    }
+
+    // Regular
+    console.log('Hello world!');
+
+    // Interpolated
+    console.log('Hello %s!', 'world');
+
+    // Styled
+    console.log('%cHello world!', 'color: #BADA55');
+
+    // warning!
+    console.warn('Hello world!');
+
+    // Error :|
+    console.error('Hello world!');
+
+    // Info
+    console.info('Hello world!');
+
+    // Testing
+    console.assert(true == false, 'This is false');
+
+    // clearing
+    console.clear();
+
+    // Viewing DOM Elements
+    console.log(document.querySelector('p'));
+    console.dir(document.querySelector('p'));
+
+    // Grouping together
+    console.group('Hello world!');
+    console.log('Hello world!');
+    console.log('Hello world!');
+    console.log('Hello world!');
+    console.groupEnd('Hello world!');
+
+    console.groupCollapsed('Hello world!');
+    console.log('Hello world!');
+    console.log('Hello world!');
+    console.log('Hello world!');
+    console.groupEnd('Hello world!');
+
+    // counting
+    console.count('Hello world!');
+    console.count('Hello world?');
+    console.count('Hello world!');
+    console.count('Hello world?');
+    console.count('Hello world?');
+    console.count('Hello world!');
+    console.count('Hello world!');
+    console.count('Hello world!');
+
+    // timing
+    console.time('Hello world!');
+    setTimeout(() => {
+      console.timeEnd('Hello world!');
+    }, 1000);
+
+    //table
+    console.table(dogs);
+
+  </script>
+</body>
+</html>
