@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Mouse Shadow</title>
+</head>
+
+<body>
+
+  <div class="hero">
+    <h1 contenteditable>🔥WOAH!</h1>
+  </div>
+
+  <style>
+    html {
+      color: black;
+      font-family: sans-serif;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: black;
+    }
+
+    h1 {
+      text-shadow: 10px 10px 0 rgba(0, 0, 0, 1);
+      font-size: 100px;
+    }
+  </style>
+
+  <script>
+    let woah;
+
+    function moveShadows(e) {
+      const { top, right, bottom, left } = woah.getBoundingClientRect();
+
+      const mirrorX = ((left + right) / 2 - e.clientX) / 2;
+      const mirrorY = ((bottom + top) / 2 - e.clientY) / 2;
+      const closestX = (e.clientX - (left + right) / 2) / 2;
+      const closestY = (e.clientY - (bottom + top) / 2) / 2;
+
+      mirrorShadow = `${mirrorX}px ${mirrorY}px 0 cyan`;
+      closestShadow = `${closestX}px ${closestY}px 0 magenta`;
+      perpendicularCounterClockwiseShadow = `${mirrorY}px ${mirrorX}px 0 green`;
+      perpendicularClockwiseShadow = `${closestY}px ${closestX}px 0 blue`;
+
+      woah.style.textShadow = `${mirrorShadow}, ${closestShadow}, ${perpendicularCounterClockwiseShadow}, ${perpendicularClockwiseShadow}`;
+    }
+
+    (function () {
+      woah = document.querySelector('.hero h1');
+
+      document.addEventListener('mousemove', moveShadows)
+    })();
+  </script>
+
+</body>
+
+</html>
