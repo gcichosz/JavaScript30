@@ -5,7 +5,6 @@
         <title>JS Drum Kit</title>
         <link rel="stylesheet" href="style.css" />
     </head>
-
     <body>
         <div class="keys">
             <div data-key="65" class="key">
@@ -57,23 +56,46 @@
         <audio data-key="76" src="sounds/tink.wav"></audio>
 
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                document.addEventListener('keydown', e => {
-                    const pressedKey = document.querySelector(
-                        `div[data-key="${e.keyCode}"]`
-                    );
-                    const audioFile = document.querySelector(
-                        `audio[data-key="${e.keyCode}"]`
-                    );
-                    if (pressedKey) {
-                        pressedKey.classList.remove('playing');
-                        pressedKey.classList.add('playing');
-                        audioFile.play();
-                        window.setTimeout(() => {
-                            pressedKey.classList.remove('playing');
-                        }, 100);
-                    }
-                });
+            let keys = [];
+            let sounds = [];
+
+            function handleKeyTransitionEnd(e) {
+                if (e.propertyName === 'transform') {
+                    this.classList.remove('playing');
+                }
+            }
+
+            function handleAudioEnd() {
+                keys.find(
+                    k => k.dataset.key === this.dataset.key
+                ).classList.remove('playing');
+            }
+
+            function handleKeyDown(e) {
+                const drumKitKey = keys.find(k => k.dataset.key == e.keyCode);
+
+                if (!drumKitKey) {
+                    return;
+                }
+
+                const sound = sounds.find(k => k.dataset.key == e.keyCode);
+
+                drumKitKey.classList.add('playing');
+                sound.currentTime = 0;
+                sound.play();
+            }
+
+            window.addEventListener('DOMContentLoaded', () => {
+                sounds = [...document.querySelectorAll('audio')];
+                keys = [...document.querySelectorAll('.key')];
+
+                sounds.forEach(s =>
+                    s.addEventListener('ended', handleAudioEnd)
+                );
+                keys.forEach(k =>
+                    k.addEventListener('transitionend', handleKeyTransitionEnd)
+                );
+                document.addEventListener('keydown', handleKeyDown);
             });
         </script>
     </body>
