@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>JS + CSS Clock</title>
   </head>
-
   <body>
     <div class="clock">
       <div class="clock-face">
@@ -48,8 +47,7 @@
         position: relative;
         width: 100%;
         height: 100%;
-        transform: translateY(-3px);
-        /* account for the height of the clock hands */
+        transform: translateY(-3px); /* account for the height of the clock hands */
       }
 
       .hand {
@@ -59,49 +57,36 @@
         position: absolute;
         top: 50%;
         transform-origin: center right;
-        transition: all 1s cubic-bezier(1, 0, 0, 1);
+        transition: transform 0.05s cubic-bezier(0.1, 2.7, 0.58, 1);
       }
     </style>
 
     <script>
-      const hands = [
-        {
-          scale: 12,
-          accessor: 'getHours',
-          selector: 'hour-hand',
-        },
-        {
-          scale: 60,
-          accessor: 'getMinutes',
-          selector: 'min-hand',
-        },
-        {
-          scale: 60,
-          accessor: 'getSeconds',
-          selector: 'second-hand',
-        },
-      ];
+      let hourHand;
+      let minHand;
+      let secondHand;
 
-      const calculateDegreeRotation = (scale, value) => (360 / scale) * value + 90;
-
-      const rotateHand = (hand, rotation) => {
-        hand.style.transform = `rotate(${rotation}deg)`;
+      const updateHand = (hand, rotationDegrees) => {
+        hand.style.transform = `rotate(${rotationDegrees + 90}deg)`;
       };
 
-      const rotateHands = () => {
+      const updateClock = () => {
         const now = new Date();
 
-        for (let hand of hands) {
-          const rotation = calculateDegreeRotation(hand.scale, now[hand.accessor]());
-          const handElement = document.getElementsByClassName(hand.selector)[0];
-          rotateHand(handElement, rotation);
-        }
+        updateHand(hourHand, ((now.getHours() / 12) % 12) * 360 + (now.getMinutes() / 60) * (360 / 12));
+        updateHand(minHand, (now.getMinutes() / 60) * 360 + (now.getSeconds() / 60) * (360 / 60));
+        updateHand(secondHand, (now.getSeconds() / 60) * 360);
       };
 
-      (function() {
-        rotateHands();
-        setInterval(rotateHands, 1000);
-      })();
+      window.addEventListener('DOMContentLoaded', () => {
+        hourHand = document.querySelector('.hour-hand');
+        minHand = document.querySelector('.min-hand');
+        secondHand = document.querySelector('.second-hand');
+
+        setInterval(updateClock, 1000);
+
+        updateClock();
+      });
     </script>
   </body>
 </html>
