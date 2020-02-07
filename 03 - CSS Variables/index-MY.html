@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>Scoped CSS Variables and JS</title>
   </head>
-
   <body>
     <h2>Update CSS Variables with <span class="hl">JS</span></h2>
 
@@ -23,14 +22,24 @@
 
     <style>
       :root {
-        --spacing: 0;
-        --blur: 0;
-        --base-color: #ffffff;
+        --spacing: 10px;
+        --blur: 10px;
+        --base: #ffc600;
+      }
+
+      img {
+        padding: var(--spacing);
+        filter: blur(var(--blur));
+        background: var(--base);
+      }
+
+      .hl {
+        color: var(--base);
       }
 
       /*
-      misc styles, nothing to do with CSS variables
-    */
+        misc styles, nothing to do with CSS variables
+      */
 
       body {
         text-align: center;
@@ -48,45 +57,18 @@
       input {
         width: 100px;
       }
-
-      img {
-        border-color: var(--base-color);
-        border-style: solid;
-        border-width: var(--spacing);
-        filter: blur(var(--blur));
-      }
-
-      .hl {
-        color: var(--base-color);
-      }
     </style>
 
     <script>
-      function updateBaseColor() {
-        document.documentElement.style.setProperty('--base-color', this.value);
+      function updateCssVariable() {
+        document.documentElement.style.setProperty(`--${this.name}`, `${this.value}${this.dataset.sizing || ''}`);
       }
 
-      function updateBlur() {
-        document.documentElement.style.setProperty('--blur', `${this.value}${this.dataset.sizing}`);
-      }
+      window.addEventListener('DOMContentLoaded', () => {
+        const controls = document.querySelectorAll('.controls input');
 
-      function updateSpacing() {
-        document.documentElement.style.setProperty('--spacing', `${this.value}${this.dataset.sizing}`);
-      }
-
-      (function() {
-        const spacingInput = document.getElementById('spacing');
-        const blurInput = document.getElementById('blur');
-        const baseColorInput = document.getElementById('base');
-
-        spacingInput.addEventListener('input', updateSpacing);
-        blurInput.addEventListener('input', updateBlur);
-        baseColorInput.addEventListener('input', updateBaseColor);
-
-        updateSpacing.call(spacingInput);
-        updateBlur.call(blurInput);
-        updateBaseColor.call(baseColorInput);
-      })();
+        controls.forEach(i => i.addEventListener('input', updateCssVariable));
+      });
     </script>
   </body>
 </html>
