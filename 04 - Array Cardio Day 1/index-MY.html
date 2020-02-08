@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>Array Cardio 💪</title>
   </head>
-
   <body>
     <p><em>Psst: have a look at the JavaScript Console</em> 💁</p>
     <script>
@@ -74,36 +73,72 @@
 
       // Array.prototype.filter()
       // 1. Filter the list of inventors for those who were born in the 1500's
-      const renaissanceInventors = inventors.filter(({ year }) => 1500 <= year && year < 1600);
-      console.log(renaissanceInventors);
+      const inventorsBornInSixteenthCentury = inventors.filter(({ year }) => 1500 <= year && year < 1600);
+      console.table(inventorsBornInSixteenthCentury);
 
       // Array.prototype.map()
       // 2. Give us an array of the inventors' first and last names
-      const fullNames = inventors.map(({ first, last }) => `${first} ${last}`);
-      console.log(fullNames);
+      const inventorsNames = inventors.map(({ first, last }) => `${first} ${last}`);
+      console.log(inventorsNames);
 
       // Array.prototype.sort()
       // 3. Sort the inventors by birthdate, oldest to youngest
-      const inventorsChronologically = inventors.sort(({ year: aYear }, { year: bYear }) => aYear - bYear);
-      console.log(inventorsChronologically);
+      const inventorsOrderedByBirthDate = inventors.sort(({ year: yearA }, { year: yearB }) => yearA - yearB);
+      console.table(inventorsOrderedByBirthDate);
 
       // Array.prototype.reduce()
       // 4. How many years did all the inventors live?
-      const inventorsTotalLifeSpan = inventors.reduce((acc, { year, passed }) => acc + passed - year, 0);
-      console.log(inventorsTotalLifeSpan);
+      const inventorsTotalLifespan = inventors.reduce((acc, { year, passed }) => acc + passed - year, 0);
+      console.log(inventorsTotalLifespan);
 
       // 5. Sort the inventors by years lived
-      const longestLivedInventors = inventors.sort(
-        ({ year: aYear, passed: aPassed }, { year: bYear, passed: bPassed }) => bPassed - bYear - aPassed + aYear
+      const inventorsOrderedByLifespan = inventors.sort(
+        ({ year: yearA, passed: passedA }, { year: yearB, passed: passedB }) => passedB - yearB - (passedA - yearA)
       );
-      console.log(longestLivedInventors);
+      console.table(inventorsOrderedByLifespan);
 
       // 6. create a list of Boulevards in Paris that contain 'de' anywhere in the name
       // https://en.wikipedia.org/wiki/Category:Boulevards_in_Paris
+      const boulevards = [
+        'Boulevard Auguste-Blanqui',
+        'Boulevard Barbès',
+        'Boulevard Beaumarchais',
+        "Boulevard de l'Amiral-Bruix",
+        'Boulevard Mortier',
+        'Boulevard Poniatowski',
+        'Boulevard Soult',
+        'Boulevard des Capucines',
+        'Boulevard de la Chapelle',
+        'Boulevard de Clichy',
+        'Boulevard du Crime',
+        "Boulevard du Général-d'Armée-Jean-Simon",
+        'Boulevard Haussmann',
+        "Boulevard de l'Hôpital",
+        'Boulevard des Italiens',
+        'Boulevard Lefebvre',
+        'Boulevard de la Madeleine',
+        'Boulevard de Magenta',
+        'Boulevard Marguerite-de-Rochechouart',
+        'Boulevard Montmartre',
+        'Boulevard du Montparnasse',
+        'Boulevard Raspail',
+        'Boulevard Richard-Lenoir',
+        'Boulevard Saint-Germain',
+        'Boulevard Saint-Michel',
+        'Boulevard de Sébastopol',
+        'Boulevard de Strasbourg',
+        'Boulevard du Temple',
+        'Boulevard Voltaire',
+        'Boulevard de la Zone',
+      ];
+      const deBoulevards = boulevards.filter(b => b.includes('de'));
+      console.log(deBoulevards);
 
       // 7. sort Exercise
       // Sort the people alphabetically by last name
-      const peopleAlphabetically = people.sort((a, b) => a.split(',')[0].localeCompare(b.split(',')[0]));
+      const peopleAlphabetically = people.sort((personA, personB) =>
+        personA.split(',')[0].localeCompare(personB.split(',')[0])
+      );
       console.log(peopleAlphabetically);
 
       // 8. Reduce Exercise
@@ -124,11 +159,11 @@
         'car',
         'truck',
       ];
-      const instancesCount = data.reduce((acc, curr) => {
-        acc[curr] = acc[curr] ? acc[curr] + 1 : 1;
+      const instancesSum = data.reduce((acc, cur) => {
+        acc[cur] = acc[cur] ? ++acc[cur] : 1;
         return acc;
       }, {});
-      console.log(instancesCount);
+      console.log(instancesSum);
     </script>
   </body>
 </html>
