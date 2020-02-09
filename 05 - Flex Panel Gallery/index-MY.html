@@ -44,7 +44,7 @@
         font-size: 20px;
         background-size: cover;
         background-position: center;
-        flex-grow: 1;
+        flex: 1;
         display: flex;
         flex-direction: column;
         justify-content: space-around;
@@ -70,7 +70,7 @@
       .panel > * {
         margin: 0;
         width: 100%;
-        transition: transform 0.5s 0.7s;
+        transition: transform 0.5s;
       }
 
       .panel p {
@@ -80,29 +80,29 @@
         font-size: 2em;
       }
 
-      .panel p:nth-child(1) {
-        transform: translateY(-200px);
+      .panel p:first-of-type {
+        transform: translateY(-300px);
       }
 
-      .panel.open p:nth-child(1) {
-        transform: translateY(0);
+      .panel.open-active p:first-of-type {
+        transform: translateY(0px);
       }
 
       .panel p:nth-child(2) {
         font-size: 4em;
       }
 
-      .panel p:nth-child(3) {
-        transform: translateY(200px);
+      .panel p:last-of-type {
+        transform: translateY(300px);
       }
 
-      .panel.open p:nth-child(3) {
-        transform: translateY(0);
+      .panel.open-active p:last-of-type {
+        transform: translateY(0px);
       }
 
       .panel.open {
         font-size: 40px;
-        flex-grow: 7;
+        flex: 5;
       }
     </style>
 
@@ -135,14 +135,24 @@
     </div>
 
     <script>
-      (function() {
-        const panels = document.getElementsByClassName('panel');
-        for (let panel of panels) {
-          panel.addEventListener('click', function() {
-            this.classList.toggle('open');
-          });
+      function openPanel() {
+        this.classList.toggle('open');
+      }
+
+      function showAdditionalText(e) {
+        if (e.propertyName !== 'flex-grow') {
+          return;
         }
-      })();
+
+        this.classList.toggle('open-active');
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        const panels = document.querySelectorAll('.panel');
+
+        panels.forEach(panel => panel.addEventListener('click', openPanel));
+        panels.forEach(panel => panel.addEventListener('transitionend', showAdditionalText));
+      });
     </script>
   </body>
 </html>
