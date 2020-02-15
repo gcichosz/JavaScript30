@@ -4,69 +4,87 @@
     <meta charset="UTF-8" />
     <title>HTML5 Canvas</title>
   </head>
-
   <body>
     <canvas id="draw" width="800" height="800"></canvas>
     <script>
-      function calculateLineWidth(modulatorNumber) {
-        return Math.abs((modulatorNumber % 150) - 75);
-      }
+      const maximumLineWidth = 100;
+      const minimumLineWidth = 10;
+      const lineWidthUp = 1;
+      const lineWidthDown = -1;
+      const previousLocation = {};
 
-      function calculateStrokeStyle(modulatorNumber) {
-        return `hsl(${modulatorNumber}deg, 100%, 50%)`;
-      }
+      let drawing = false;
+      let hue = 0;
+      let lineWidthDirection = lineWidthDown;
+      let ctx;
 
-      function initCanvas(canvasId) {
-        const drawCanvas = document.getElementById(canvasId);
+      const setupCanvas = canvas => {
+        const ctx = canvas.getContext('2d');
+        ctx.canvas.width = window.innerWidth;
+        ctx.canvas.height = window.innerHeight;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+        ctx.lineWidth = maximumLineWidth;
+        return ctx;
+      };
 
-        drawCanvas.width = window.innerWidth;
-        drawCanvas.height = window.innerHeight;
+      const startDrawing = () => (drawing = true);
 
-        drawCanvas.drawContext = drawCanvas.getContext('2d');
+      const stopDrawing = () => (drawing = false);
 
-        drawCanvas.drawing = false;
-        drawCanvas.styleModulator = 1;
+      const setPreviousLocation = (x, y) => {
+        previousLocation.x = x;
+        previousLocation.y = y;
+      };
 
-        drawCanvas.drawContext.lineCap = 'round';
-        drawCanvas.drawContext.lineWidth = calculateLineWidth(drawCanvas.styleModulator);
-        drawCanvas.drawContext.strokeStyle = calculateStrokeStyle(drawCanvas.styleModulator);
+      const drawLineTo = (x, y) => {
+        ctx.beginPath();
+        ctx.moveTo(previousLocation.x, previousLocation.y);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      };
 
-        return drawCanvas;
-      }
+      const changeHue = () => {
+        ctx.strokeStyle = `hsl(${++hue}, 100%, 50%)`;
+      };
 
-      function startDrawing(event) {
-        this.drawContext.beginPath();
-        this.drawContext.moveTo(event.clientX, event.clientY);
-        this.drawing = true;
-      }
+      const changeLineWidth = () => {
+        ctx.lineWidth += lineWidthDirection;
+        if (ctx.lineWidth >= maximumLineWidth) {
+          lineWidthDirection = lineWidthDown;
+        }
+        if (ctx.lineWidth <= minimumLineWidth) {
+          lineWidthDirection = lineWidthUp;
+        }
+      };
 
-      function drawLinePart(event) {
-        if (this.drawing) {
-          this.drawContext.lineTo(event.clientX, event.clientY);
-          this.drawContext.stroke();
-          this.drawContext.beginPath();
-
-          this.styleModulator++;
-          this.drawContext.lineWidth = calculateLineWidth(this.styleModulator);
-          this.drawContext.strokeStyle = calculateStrokeStyle(this.styleModulator);
+      const draw = e => {
+        if (!drawing) {
+          return;
         }
 
-        this.drawContext.moveTo(event.clientX, event.clientY);
-      }
+        drawLineTo(e.clientX, e.clientY);
 
-      function stopDrawing(event) {
-        this.drawing = false;
-      }
+        setPreviousLocation(e.clientX, e.clientY);
+        changeHue();
+        changeLineWidth();
+      };
 
-      (function() {
-        const drawCanvas = initCanvas('draw');
+      window.addEventListener('DOMContentLoaded', () => {
+        const canvas = document.getElementById('draw');
+        ctx = setupCanvas(canvas);
 
-        drawCanvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousedown', function(e) {
+          startDrawing();
+          setPreviousLocation(e.clientX, e.clientY);
+        });
 
-        drawCanvas.addEventListener('mousemove', drawLinePart);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
 
-        drawCanvas.addEventListener('mouseup', stopDrawing);
-      })();
+        canvas.addEventListener('mousemove', draw);
+      });
     </script>
 
     <style>
