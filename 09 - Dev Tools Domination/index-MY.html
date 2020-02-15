@@ -26,19 +26,19 @@
       console.log('Hello %s!', 'world');
 
       // Styled
-      console.log('%cHello world!', 'color: #BADA55');
+      console.log('%cHello world!', 'color: yellow;');
 
       // warning!
-      console.warn('Hello world!');
+      console.warn('Warning!');
 
       // Error :|
-      console.error('Hello world!');
+      console.error('Error!');
 
       // Info
-      console.info('Hello world!');
+      console.info('Info');
 
       // Testing
-      console.assert(true == false, 'This is false');
+      console.assert(true == false, 'true is not equal to false');
 
       // clearing
       console.clear();
@@ -52,20 +52,15 @@
       console.log('Hello world!');
       console.log('Hello world!');
       console.log('Hello world!');
-      console.groupEnd('Hello world!');
+      console.groupEnd();
 
-      console.groupCollapsed('Hello world!');
-      console.log('Hello world!');
-      console.log('Hello world!');
-      console.log('Hello world!');
-      console.groupEnd('Hello world!');
+      console.groupCollapsed('Hello hidden world!');
+      console.log('Hello hidden world!');
+      console.log('Hello hidden world!');
+      console.log('Hello hidden world!');
+      console.groupEnd();
 
       // counting
-      console.count('Hello world!');
-      console.count('Hello world?');
-      console.count('Hello world!');
-      console.count('Hello world?');
-      console.count('Hello world?');
       console.count('Hello world!');
       console.count('Hello world!');
       console.count('Hello world!');
@@ -76,7 +71,7 @@
         console.timeEnd('Hello world!');
       }, 1000);
 
-      //table
+      // table
       console.table(dogs);
     </script>
   </body>
