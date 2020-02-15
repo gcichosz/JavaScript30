@@ -5,7 +5,6 @@
     <title>Type Ahead 👀</title>
     <link rel="stylesheet" href="style.css" />
   </head>
-
   <body>
     <form class="search-form">
       <input type="text" class="search" placeholder="City or State" />
@@ -15,64 +14,48 @@
       </ul>
     </form>
     <script>
-      let cities = [];
+      const cities = [];
+      let suggestions;
 
-      const findCities = query =>
-        cities.filter(({ city, state }) => city.toLowerCase().includes(query) || state.toLowerCase().includes(query));
+      const endpoint =
+        'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
 
-      const createCitiesListElements = query => {
-        query = query.toLowerCase();
+      fetch(endpoint)
+        .then(res => res.json())
+        .then(data => cities.push(...data));
 
-        const mapCityToListElement = city => {
-          const liElement = document.createElement('li');
-          const nameElement = document.createElement('span');
-          const populationElement = document.createElement('span');
-          populationElement.classList.add('population');
-
-          const cityFullName = `${city.city}, ${city.state}`.toLowerCase();
-          const cityFullNameHighlighted = cityFullName.replace(
-            new RegExp(`${query}`, 'g'),
-            `<span class="hl">${query}</span>`
-          );
-          nameElement.innerHTML = cityFullNameHighlighted;
-          populationElement.innerText = city.population;
-
-          liElement.appendChild(nameElement);
-          liElement.appendChild(populationElement);
-          return liElement;
-        };
-
-        const matchedCities = findCities(query);
-        return matchedCities.map(mapCityToListElement);
+      const filterCities = filter => {
+        return cities.filter(
+          c =>
+            c.city.toLowerCase().includes(filter.toLowerCase()) || c.state.toLowerCase().includes(filter.toLowerCase())
+        );
       };
 
-      const removeCurrentListElements = listElement => {
-        const currentListElements = listElement.querySelectorAll('li');
-        currentListElements.forEach(li => li.remove());
+      const highlightMatch = (name, match) => {
+        const highlightRegExp = new RegExp(match, 'gi');
+        return name.replace(highlightRegExp, `<span class="hl">${match}</span>`);
       };
 
-      const addNewListElements = (listElement, listElements) => listElements.forEach(li => listElement.appendChild(li));
+      const numberWithCommas = x => x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-      const refreshMatchedCitiesList = listElements => {
-        const listElement = document.querySelector('ul');
-        removeCurrentListElements(listElement);
-        addNewListElements(listElement, listElements);
-      };
-
-      function refreshMatchedCities() {
-        const matchedCitiesListElements = createCitiesListElements(this.value);
-        refreshMatchedCitiesList(matchedCitiesListElements);
+      function searchCities() {
+        suggestions.innerHTML = filterCities(this.value)
+          .map(
+            c =>
+              `<li><span>${highlightMatch(c.city, this.value)}, ${highlightMatch(
+                c.state,
+                this.value
+              )}</span><span>${numberWithCommas(c.population)}</span></li>`
+          )
+          .join('');
       }
 
-      (async function() {
-        const endpoint =
-          'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
-        const citiesResponse = await fetch(endpoint);
-        cities = await citiesResponse.json();
+      window.addEventListener('DOMContentLoaded', async () => {
+        const search = document.querySelector('.search');
+        suggestions = document.querySelector('.suggestions');
 
-        const search = document.querySelector('input.search');
-        search.addEventListener('input', refreshMatchedCities);
-      })();
+        search.addEventListener('input', searchCities);
+      });
     </script>
   </body>
 </html>
