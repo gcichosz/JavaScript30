@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>Hold Shift to Check Multiple Checkboxes</title>
   </head>
-
   <body>
     <style>
       html {
@@ -97,33 +96,33 @@
 
     <script>
       let checkboxes;
-      let previousCheckbox;
+      let previous;
 
-      function selectMultipleCheckboxes(checkbox) {
-        [lowerIndex, higherIndex] = [
-          checkboxes.indexOf(checkbox),
-          checkboxes.indexOf(previousCheckbox ? previousCheckbox : checkbox),
-        ].sort();
-        for (let i = lowerIndex; i < higherIndex; i++) {
-          checkboxes[i].checked = true;
+      function selectMultipleCheckboxes(c) {
+        let inBetween = false;
+        for (const checkbox of checkboxes) {
+          if (checkbox === c || checkbox === previous) {
+            inBetween = !inBetween;
+          }
+
+          if (inBetween) {
+            checkbox.checked = true;
+          }
         }
       }
 
-      function onCheckboxClick(event) {
-        if (event.shiftKey && this.checked) {
+      function onCheckboxClick(e) {
+        if (this.checked && e.shiftKey) {
           selectMultipleCheckboxes(this);
         }
 
-        previousCheckbox = this;
+        previous = this;
       }
 
-      (function() {
-        checkboxes = [...document.getElementsByTagName('input')];
-
-        for (let checkbox of checkboxes) {
-          checkbox.addEventListener('click', onCheckboxClick);
-        }
-      })();
+      window.addEventListener('DOMContentLoaded', () => {
+        checkboxes = document.querySelectorAll('.item input');
+        checkboxes.forEach(c => c.addEventListener('click', onCheckboxClick));
+      });
     </script>
   </body>
 </html>
