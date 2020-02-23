@@ -3,9 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <title>Key Detection</title>
-    <!-- <script type="text/javascript" src="https://www.cornify.com/js/cornify.js"></script> -->
+    <script type="text/javascript" src="https://www.cornify.com/js/cornify.js"></script>
   </head>
-
   <body>
     <script>
       const konamiCode = [
@@ -20,18 +19,14 @@
         'KeyB',
         'KeyA',
       ];
-      let consecutiveInputs = 0;
 
-      document.addEventListener('keydown', function(e) {
-        if (e.code == konamiCode[consecutiveInputs]) {
-          consecutiveInputs++;
-        } else {
-          consecutiveInputs = 0;
-        }
+      let input = [];
 
-        if (consecutiveInputs == 10) {
-          console.log('You entered a Konami code!');
-          consecutiveInputs = 0;
+      window.addEventListener('keydown', function(e) {
+        input.push(e.code);
+        input = input.slice(-konamiCode.length);
+        if (input.toString() === konamiCode.toString()) {
+          console.log('KONAMI CODE');
         }
       });
     </script>
