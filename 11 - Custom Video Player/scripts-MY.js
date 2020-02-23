@@ -1,52 +1,60 @@
 let video;
 let playToggleButton;
-let filledProgressBar;
+let progressIndicator;
+
+function updateProgress() {
+  const elapsed = (video.currentTime / video.duration) * 100;
+  progressIndicator.style.flexBasis = `${elapsed}%`;
+}
 
 function toggleVideoPlay() {
   if (video.paused) {
-    playToggleButton.innerText = `▮▮`;
     video.play();
   } else {
-    playToggleButton.innerText = `►`;
     video.pause();
   }
 }
 
-function updateProgressBar() {
-  filledProgressBar.style.flexBasis = `${(video.currentTime / video.duration) * 100}%`;
+function updateButton() {
+  playToggleButton.textContent = video.paused ? '►' : '❚ ❚';
 }
 
-function skipVideo() {
-  video.currentTime += +this.dataset.skip;
+function changeProgress(e) {
+  if (e.buttons !== 1 && e.which !== 1) {
+    return;
+  }
+
+  const elapsed = (e.offsetX / this.offsetWidth) * video.duration;
+  video.currentTime = elapsed;
 }
 
-function handleSliderChange() {
+function onSliderChange() {
   video[this.name] = this.value;
 }
 
-function windVideo(event) {
-  if (event.buttons === 1) {
-    video.currentTime = (event.offsetX / this.offsetWidth) * video.duration;
-  }
+function skip() {
+  video.currentTime += Number(this.dataset.skip);
 }
 
-(function() {
+window.addEventListener('DOMContentLoaded', () => {
   const progressBar = document.querySelector('.progress');
-  const skipButtons = document.querySelectorAll('.player__button[data-skip]');
-  const sliders = document.querySelectorAll('.player__slider');
-  playToggleButton = document.querySelector('.player__button.toggle');
-  video = document.querySelector('video');
-  filledProgressBar = document.querySelector('.progress__filled');
+  const sliders = document.querySelectorAll('input[type="range"]');
+  const skipButtons = document.querySelectorAll('button[data-skip]');
+  video = document.querySelector('.viewer');
+  progressIndicator = document.querySelector('.progress__filled');
+  playToggleButton = document.querySelector('.toggle');
+
+  video.addEventListener('timeupdate', updateProgress);
 
   video.addEventListener('click', toggleVideoPlay);
   playToggleButton.addEventListener('click', toggleVideoPlay);
+  video.addEventListener('play', updateButton);
+  video.addEventListener('pause', updateButton);
 
-  video.addEventListener('timeupdate', updateProgressBar);
+  progressBar.addEventListener('click', changeProgress);
+  progressBar.addEventListener('mousemove', changeProgress);
 
-  skipButtons.forEach(b => b.addEventListener('click', skipVideo));
+  sliders.forEach(s => s.addEventListener('input', onSliderChange));
 
-  sliders.forEach(s => s.addEventListener('input', handleSliderChange));
-
-  progressBar.addEventListener('mousedown', windVideo);
-  progressBar.addEventListener('mousemove', windVideo);
-})();
+  skipButtons.forEach(b => b.addEventListener('click', skip));
+});
