@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>Document</title>
   </head>
-
   <body>
     <div class="site-wrap">
       <h1>Slide in on Scroll</h1>
@@ -161,6 +160,47 @@
       </p>
     </div>
 
+    <script>
+      let images;
+
+      function debounce(func, wait = 20, immediate = true) {
+        var timeout;
+        return function() {
+          var context = this,
+            args = arguments;
+          var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+          var callNow = immediate && !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
+        };
+      }
+
+      function toggleImage(topBoundary, bottomBoundary, image) {
+        const imageMiddle = image.offsetTop + image.offsetHeight / 2;
+        if (topBoundary <= imageMiddle && imageMiddle <= bottomBoundary) {
+          image.classList.add('active');
+        } else {
+          image.classList.remove('active');
+        }
+      }
+
+      function onScroll() {
+        const topBoundary = window.scrollY;
+        const bottomBoundary = window.scrollY + window.innerHeight;
+
+        images.forEach(i => toggleImage(topBoundary, bottomBoundary, i));
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        images = document.querySelectorAll('img');
+        document.addEventListener('scroll', debounce(onScroll));
+      });
+    </script>
+
     <style>
       html {
         box-sizing: border-box;
@@ -220,44 +260,5 @@
         transform: translateX(0%) scale(1);
       }
     </style>
-
-    <script>
-      let images;
-
-      function debounce(func, wait = 20, immediate = true) {
-        var timeout;
-        return function() {
-          var context = this,
-            args = arguments;
-          var later = function() {
-            timeout = null;
-            if (!immediate) func.apply(context, args);
-          };
-          var callNow = immediate && !timeout;
-          clearTimeout(timeout);
-          timeout = setTimeout(later, wait);
-          if (callNow) func.apply(context, args);
-        };
-      }
-
-      function toggleSlide() {
-        let viewportTop = window.scrollY;
-        let viewportBottom = window.scrollY + window.innerHeight;
-
-        images.forEach(i => {
-          let imagePosition = i.offsetTop + i.offsetHeight / 2;
-          if (viewportTop <= imagePosition && imagePosition <= viewportBottom) {
-            i.classList.add('active');
-          } else {
-            i.classList.remove('active');
-          }
-        });
-      }
-
-      (function() {
-        images = [...document.querySelectorAll('img')];
-        window.addEventListener('scroll', debounce(toggleSlide));
-      })();
-    </script>
   </body>
 </html>
