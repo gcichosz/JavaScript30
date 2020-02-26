@@ -5,7 +5,6 @@
     <title>LocalStorage</title>
     <link rel="stylesheet" href="style.css" />
   </head>
-
   <body>
     <!--
       Fish SVG Cred:
@@ -55,71 +54,62 @@
     </div>
 
     <script>
-      const itemsKeyName = 'items';
-      const itemClassName = 'js-item';
-      let itemsList;
-      let items;
+      const itemsKeyName = 'tapas';
+      let itemsList, items;
 
-      function appendItemToList(item) {
-        const itemElement = `
-        <li>
-          <input type="checkbox" id="${item.id}" ${item.checked ? 'checked' : ''}>
-          <label for="${item.id}" class="${itemClassName}">${item.name}</label>
-        </li>
-      `;
-        itemsList.innerHTML += itemElement;
-      }
+      const mapItemsToList = () =>
+        items
+          .map(
+            i =>
+              `<li><input type="checkbox" name="item-${i.id}" ${i.checked ? 'checked' : ''}/><label for="item-${
+                i.id
+              }" data-id="${i.id}">${i.name}</label></li>`
+          )
+          .join('');
 
-      function appendItemToCollection(item) {
-        items.push(item);
+      const updateItems = () => {
         localStorage.setItem(itemsKeyName, JSON.stringify(items));
-      }
+        itemsList.innerHTML = mapItemsToList();
+      };
 
-      function appendItem(itemName) {
-        const newItem = { name: itemName, checked: false, id: `item${items.length}` };
-
-        appendItemToCollection(newItem);
-        appendItemToList(newItem);
-      }
-
-      function updateItemCollection(itemNode) {
-        let item = items.find(i => i.id === itemNode.getAttribute('for'));
-
-        item.checked = !item.checked;
-        localStorage.setItem(itemsKeyName, JSON.stringify(items));
-      }
-
-      function onAddItem(e) {
+      function handleItemSubmit(e) {
         e.preventDefault();
 
-        const itemNameInput = this.querySelector('input[name="item"]');
+        items.push({
+          name: this.item.value,
+          checked: false,
+          id: items.length,
+        });
 
-        appendItem(itemNameInput.value);
+        updateItems();
 
-        itemNameInput.value = '';
+        this.reset();
       }
 
-      function loadItems() {
-        items = JSON.parse(localStorage.getItem(itemsKeyName)) || [];
-        itemsList.innerHTML = '';
-        items.forEach(i => appendItemToList(i));
-      }
-
-      function onItemClicked(e) {
-        if (e.target.classList.contains(itemClassName)) {
-          updateItemCollection(e.target);
+      function handleItemClick({
+        target: {
+          dataset: { id },
+        },
+      }) {
+        if (!id) {
+          return;
         }
+
+        items[id].checked = !items[id].checked;
+
+        updateItems();
       }
 
-      (function() {
+      window.addEventListener('DOMContentLoaded', () => {
         const addItems = document.querySelector('.add-items');
         itemsList = document.querySelector('.plates');
+        items = JSON.parse(localStorage.getItem(itemsKeyName)) || [];
 
-        loadItems();
+        itemsList.innerHTML = mapItemsToList();
 
-        addItems.addEventListener('submit', onAddItem);
-        document.addEventListener('click', onItemClicked);
-      })();
+        addItems.addEventListener('submit', handleItemSubmit);
+        itemsList.addEventListener('click', handleItemClick);
+      });
     </script>
   </body>
 </html>
