@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>Mouse Shadow</title>
   </head>
-
   <body>
     <div class="hero">
       <h1 contenteditable>🔥WOAH!</h1>
@@ -35,29 +34,28 @@
     </style>
 
     <script>
-      let woah;
+      let text;
 
       function moveShadows(e) {
-        const { top, right, bottom, left } = woah.getBoundingClientRect();
+        const shadowX = (e.x - text.offsetWidth / 2 - text.offsetLeft) * 0.3;
+        const shadowY = (e.y - text.offsetHeight / 2 - text.offsetTop) * 0.3;
 
-        const mirrorX = ((left + right) / 2 - e.clientX) / 2;
-        const mirrorY = ((bottom + top) / 2 - e.clientY) / 2;
-        const closestX = (e.clientX - (left + right) / 2) / 2;
-        const closestY = (e.clientY - (bottom + top) / 2) / 2;
+        const textShadows = [
+          `${shadowX}px ${shadowY}px 0 rgba(255, 0, 255, 0.7)`,
+          `${-shadowX}px ${shadowY}px 0 rgba(0, 255, 255, 0.7)`,
+          `${shadowY}px ${-shadowX}px 0 rgba(0, 255, 0, 0.7)`,
+          `${-shadowY}px ${shadowX}px 0 rgba(0, 0, 255, 0.7)`,
+        ];
 
-        mirrorShadow = `${mirrorX}px ${mirrorY}px 0 cyan`;
-        closestShadow = `${closestX}px ${closestY}px 0 magenta`;
-        perpendicularCounterClockwiseShadow = `${mirrorY}px ${mirrorX}px 0 green`;
-        perpendicularClockwiseShadow = `${closestY}px ${closestX}px 0 blue`;
-
-        woah.style.textShadow = `${mirrorShadow}, ${closestShadow}, ${perpendicularCounterClockwiseShadow}, ${perpendicularClockwiseShadow}`;
+        text.style.textShadow = textShadows.join(',');
       }
 
-      (function() {
-        woah = document.querySelector('.hero h1');
+      window.addEventListener('DOMContentLoaded', () => {
+        const hero = document.querySelector('.hero');
+        text = hero.querySelector('h1');
 
-        document.addEventListener('mousemove', moveShadows);
-      })();
+        hero.addEventListener('mousemove', moveShadows);
+      });
     </script>
   </body>
 </html>
