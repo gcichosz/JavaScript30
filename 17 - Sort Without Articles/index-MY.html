@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>Sort Without Articles</title>
   </head>
-
   <body>
     <style>
       body {
@@ -45,6 +44,8 @@
     <ul id="bands"></ul>
 
     <script>
+      const sanitizeArticles = text => text.replace(/(^| )(the|a|an) /i, ' ').trim();
+
       const bands = [
         'The Plot in You',
         'The Devil Wears Prada',
@@ -61,16 +62,14 @@
         'An Old Dog',
       ];
 
-      function removeArticles(s) {
-        const boundaryArticles = /^(the|a|an)\s|\s(the|a|an)$/i;
-        const middleArticles = /\s(the|a|an)\s/i;
-        return s.replace(boundaryArticles, '').replace(middleArticles, ' ');
-      }
+      window.addEventListener('DOMContentLoaded', () => {
+        const bandsList = document.querySelector('#bands');
 
-      document.querySelector('#bands').innerHTML = bands
-        .sort((a, b) => removeArticles(a).localeCompare(removeArticles(b)))
-        .map(b => `<li>${b}</li>`)
-        .join('');
+        bandsList.innerHTML = bands
+          .sort((a, b) => sanitizeArticles(a).localeCompare(sanitizeArticles(b)))
+          .map(b => `<li>${b}</li>`)
+          .join('');
+      });
     </script>
   </body>
 </html>
