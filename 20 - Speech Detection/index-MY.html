@@ -4,34 +4,28 @@
     <meta charset="UTF-8" />
     <title>Speech Detection</title>
   </head>
-
   <body>
     <div class="words" contenteditable></div>
 
     <script>
+      let notebook, currentParagraph;
+
       window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const speechRecognition = new window.SpeechRecognition();
-      speechRecognition.lang = 'en-US';
-      speechRecognition.interimResults = true;
+      const recognition = new window.SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.interimResults = true;
 
-      let currentParagraph;
-      function appendNextParagraph() {
+      recognition.onspeechstart = () => {
         currentParagraph = document.createElement('p');
-        document.querySelector('.words').appendChild(currentParagraph);
-      }
-
-      speechRecognition.onspeechstart = () => appendNextParagraph();
-      speechRecognition.onspeechend = () => {
-        speechRecognition.stop();
+        notebook.appendChild(currentParagraph);
       };
-      speechRecognition.onend = () => {
-        speechRecognition.start();
-      };
+      recognition.onresult = e => (currentParagraph.textContent = e.results[0][0].transcript);
+      recognition.onend = () => recognition.start();
+      recognition.start();
 
-      speechRecognition.onresult = e =>
-        (currentParagraph.innerText = [...e.results].reduce((acc, curr) => acc + curr[0].transcript, ''));
-
-      speechRecognition.start();
+      window.addEventListener('DOMContentLoaded', () => {
+        notebook = document.querySelector('.words');
+      });
     </script>
 
     <style>
