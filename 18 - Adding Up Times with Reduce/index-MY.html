@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>Videos</title>
   </head>
-
   <body>
     <ul class="videos">
       <li data-time="5:43">
@@ -183,26 +182,22 @@
       </li>
     </ul>
     <script>
-      const mapToSeconds = timeArray => timeArray.reverse().reduce((acc, curr, i) => acc + curr * 60 ** i, 0);
-      const mapToTimeArray = seconds =>
-        [Math.floor(seconds / 3600), Math.floor((seconds % 3600) / 60), seconds % 60].join(' ').replace(/^(0\s)+/, '');
+      window.addEventListener('DOMContentLoaded', () => {
+        const videos = [...document.querySelectorAll('[data-time]')];
 
-      (function() {
+        const totalTimeInSeconds = videos
+          .map(v => v.dataset.time)
+          .map(t => {
+            const [minutes, seconds] = t.split(':').map(Number);
+            return minutes * 60 + seconds;
+          })
+          .reduce((acc, cur) => acc + cur);
         console.log(
-          [...document.querySelectorAll('li')].reduce((acc, curr) => {
-            const accSeconds = mapToSeconds(acc.split(' '));
-            const currSeconds = mapToSeconds(curr.dataset.time.split(':'));
-            const totalSeconds = accSeconds + currSeconds;
-            return mapToTimeArray(totalSeconds);
-          }, '')
+          `${Math.floor(totalTimeInSeconds / 3600)}:${Math.floor(
+            (totalTimeInSeconds % 3600) / 60
+          )}:${totalTimeInSeconds % 60}`
         );
-
-        const totalSeconds = [...document.querySelectorAll('li')]
-          .map(li => li.dataset.time)
-          .map(t => mapToSeconds(t.split(':')))
-          .reduce((acc, curr) => acc + curr, 0);
-        console.log(mapToTimeArray(totalSeconds));
-      })();
+      });
     </script>
   </body>
 </html>
