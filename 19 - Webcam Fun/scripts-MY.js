@@ -1,103 +1,92 @@
-const video = document.querySelector('.player');
-const canvas = document.querySelector('.photo');
-const ctx = canvas.getContext('2d');
-const strip = document.querySelector('.strip');
-const snap = document.querySelector('.snap');
+let video, canvas, ctx, strip, snap;
 
 function playSnapSound() {
   snap.currentTime = 0;
   snap.play();
 }
 
-function captureVideoToImage(blob) {
-  let downloadLink = document.createElement('a');
-  let picture = document.createElement('img');
-  downloadLink.appendChild(picture);
-  let imgUrl = window.URL.createObjectURL(blob);
-
-  picture.src = imgUrl;
-  downloadLink.href = imgUrl;
-  downloadLink.download = 'handsome';
-  strip.appendChild(downloadLink);
-}
-
 function takePhoto() {
   playSnapSound();
-  canvas.toBlob(captureVideoToImage, 'image/jpeg', 0.95);
-}
 
-function resizeCanvas(video) {
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  const photoData = canvas.toDataURL('image/jpeg');
+
+  const link = document.createElement('a');
+  link.href = photoData;
+  link.setAttribute('download', 'photo');
+  link.innerHTML = `<img src="${photoData}" alt="A photo" />`;
+  strip.insertBefore(link, strip.firstChild);
 }
 
 function redEffect(pixels) {
-  for (let i = 1; i < pixels.data.length; i += 4) {
-    pixels.data[i] = 0;
+  for (let i = 0; i < pixels.data.length; i += 4) {
+    pixels.data[i + 1] = 0;
+    pixels.data[i + 2] = 0;
   }
 
-  for (let i = 2; i < pixels.data.length; i += 4) {
-    pixels.data[i] = 0;
-  }
-
-  return pixels;
-}
-
-function rgbSplit(pixels) {
   return pixels;
 }
 
 function greenScreen(pixels) {
-  const redMin = document.querySelector('input[name="rmin"').value;
-  const redMax = document.querySelector('input[name="rmax"').value;
-  const greenMin = document.querySelector('input[name="gmin"').value;
-  const greenMax = document.querySelector('input[name="gmax"').value;
-  const blueMin = document.querySelector('input[name="bmin"').value;
-  const blueMax = document.querySelector('input[name="bmax"').value;
+  const levels = {};
+  let red, green, blue;
+
+  document.querySelectorAll('input[type="range"]').forEach(i => (levels[i.name] = i.value));
 
   for (let i = 0; i < pixels.data.length; i += 4) {
+    red = pixels.data[i + 0];
+    green = pixels.data[i + 1];
+    blue = pixels.data[i + 2];
+
     if (
-      (pixels.data[i] < redMin || pixels.data[i] > redMax) &&
-      (pixels.data[i + 1] < greenMin || pixels.data[i + 1] > greenMax) &&
-      (pixels.data[i + 2] < blueMin || pixels.data[i + 2] > blueMax)
+      red >= levels.rmin &&
+      green >= levels.gmin &&
+      blue >= levels.bmin &&
+      red <= levels.rmax &&
+      green <= levels.gmax &&
+      blue <= levels.bmax
     ) {
-      pixels.data[i] = 255;
-      pixels.data[i + 1] = 255;
-      pixels.data[i + 2] = 255;
+      pixels.data[i + 3] = 0;
     }
   }
 
   return pixels;
 }
 
-function redrawCanvas(video) {
-  resizeCanvas(video);
+function rgbSplit(pixels) {
+  for (let i = 0; i < pixels.data.length; i += 4) {
+    pixels.data[i - 300] = pixels.data[i];
+    pixels.data[i - 150] = pixels.data[i + 1];
+    pixels.data[i + 150] = pixels.data[i + 2];
+  }
 
-  ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-
-  try {
-    let pixels = ctx.getImageData(0, 0, video.videoWidth, video.videoHeight);
-
-    // pixels = redEffect(pixels);
-    // pixels = rgbSplit(pixels);
-    // pixels - greenScreen(pixels);
-
-    ctx.putImageData(pixels, 0, 0);
-  } catch {}
-
-  setTimeout(redrawCanvas, 1000 / 30, video);
+  return pixels;
 }
 
 function pipeVideoStreamToCanvas() {
-  redrawCanvas(this);
+  setInterval(() => {
+    if (!video.paused && !video.ended) {
+      ctx.drawImage(video, 0, 0);
+      let pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      ctx.putImageData(rgbSplit(pixels), 0, 0);
+    }
+  }, 1000 / 30);
 }
 
-async function connectMediaStream() {
-  let videoStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
-  video.srcObject = videoStream;
+window.addEventListener('DOMContentLoaded', async () => {
+  video = document.querySelector('.player');
+  canvas = document.querySelector('.photo');
+  ctx = canvas.getContext('2d');
+  strip = document.querySelector('.strip');
+  snap = document.querySelector('.snap');
+
+  video.addEventListener('loadedmetadata', function() {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+  });
 
   video.addEventListener('play', pipeVideoStreamToCanvas);
-  video.play();
-}
 
-connectMediaStream();
+  const camera = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
+  video.srcObject = camera;
+  video.play();
+});
