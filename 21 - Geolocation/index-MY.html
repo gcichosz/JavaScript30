@@ -5,7 +5,6 @@
     <title>Document</title>
     <meta name="viewport" content="width=device-width" />
   </head>
-
   <body>
     <svg
       class="arrow"
@@ -53,10 +52,6 @@
       <span class="units">KM/H</span>
     </h1>
 
-    <p id="acc-x"></p>
-    <p id="acc-y"></p>
-    <p id="acc-z"></p>
-
     <style>
       html {
         font-size: 100px;
@@ -97,19 +92,20 @@
       .units {
         font-size: 15px;
       }
-
       /*Compass: https://thenounproject.com/search/?q=compass&i=592352*/
     </style>
     <script>
-      const speedValue = document.querySelector('.speed-value');
-      const arrow = document.querySelector('.arrow');
+      let speedValue, compass;
 
-      const onPositionChanged = position => {
-        arrow.style.transform = `rotate(${position.coords.heading}deg)`;
-        speedValue.textContent = position.coords.speed && ((position.coords.speed * 3600) / 1000).toFixed(2);
-      };
+      navigator.geolocation.watchPosition(({ coords: { speed, heading } }) => {
+        speedValue.textContent = speed ? (speed * 3.6).toFixed(2) : 0;
+        compass.style.transform = `rotate(${heading}deg)`;
+      });
 
-      navigator.geolocation.watchPosition(onPositionChanged);
+      window.addEventListener('DOMContentLoaded', () => {
+        speedValue = document.querySelector('.speed-value');
+        compass = document.querySelector('.arrow');
+      });
     </script>
   </body>
 </html>
