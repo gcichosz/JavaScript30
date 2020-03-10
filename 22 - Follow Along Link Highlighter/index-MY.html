@@ -46,21 +46,20 @@
       let highlight;
 
       function moveHighlight() {
-        const { width, height, left, top } = this.getBoundingClientRect();
+        const { top, left, width, height } = this.getBoundingClientRect();
 
-        highlight.style.width = width + 'px';
-        highlight.style.height = height + 'px';
-        highlight.style.left = left + window.scrollX + 'px';
-        highlight.style.top = top + window.scrollY + 'px';
+        highlight.style.width = `${width}px`;
+        highlight.style.height = `${height}px`;
+        highlight.style.top = `${top + window.scrollY}px`;
+        highlight.style.left = `${left + window.scrollX}px`;
       }
 
-      (function() {
+      window.addEventListener('DOMContentLoaded', () => {
+        const links = document.querySelectorAll('a');
         highlight = document.querySelector('.highlight');
 
-        document.querySelectorAll('a').forEach(a => {
-          a.addEventListener('mouseenter', moveHighlight);
-        });
-      })();
+        links.forEach(l => l.addEventListener('mouseenter', moveHighlight));
+      });
     </script>
   </body>
 </html>
