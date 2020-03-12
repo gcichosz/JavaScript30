@@ -200,22 +200,19 @@
     </div>
 
     <script>
-      let body, fixedNavThreshold;
+      let fixedNavThreshold;
 
-      function toggleFixedNav() {
-        if (window.scrollY > fixedNavThreshold) {
-          body.classList.add('fixed-nav');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY >= fixedNavThreshold) {
+          document.body.classList.add('fixed-nav');
         } else {
-          body.classList.remove('fixed-nav');
+          document.body.classList.remove('fixed-nav');
         }
-      }
+      });
 
-      (function() {
-        body = document.querySelector('body');
-        ({ top: fixedNavThreshold } = document.querySelector('#main').getBoundingClientRect());
-
-        document.addEventListener('scroll', toggleFixedNav);
-      })();
+      window.addEventListener('DOMContentLoaded', () => {
+        ({ height: fixedNavThreshold } = document.querySelector('header').getBoundingClientRect());
+      });
     </script>
   </body>
 </html>
