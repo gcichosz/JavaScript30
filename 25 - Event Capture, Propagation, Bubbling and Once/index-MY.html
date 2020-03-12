@@ -42,15 +42,20 @@
 
     <button></button>
     <script>
-      document.querySelectorAll('div').forEach(d =>
-        d.addEventListener(
-          'click',
-          function() {
-            console.log(this.classList.value);
-          },
-          { once: true }
-        )
-      );
+      window.addEventListener('DOMContentLoaded', () => {
+        [...document.querySelectorAll('div')].forEach(d =>
+          d.addEventListener(
+            'click',
+            function() {
+              console.log(this.classList.value);
+            },
+            {
+              once: true,
+              capture: true,
+            }
+          )
+        );
+      });
     </script>
   </body>
 </html>
