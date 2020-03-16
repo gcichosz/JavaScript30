@@ -68,16 +68,10 @@
         <li>
           <a href="#">Other Links</a>
           <ul class="dropdown dropdown3">
-            <li>
-              <a class="button" href="http://twitter.com/wesbos">Twitter</a>
-            </li>
-            <li>
-              <a class="button" href="http://facebook.com/wesbos.developer">Facebook</a>
-            </li>
+            <li><a class="button" href="http://twitter.com/wesbos">Twitter</a></li>
+            <li><a class="button" href="http://facebook.com/wesbos.developer">Facebook</a></li>
             <li><a class="button" href="http://wesbos.com">Blog</a></li>
-            <li>
-              <a class="button" href="http://wesbos.com/courses">Course Catalog</a>
-            </li>
+            <li><a class="button" href="http://wesbos.com/courses">Course Catalog</a></li>
           </ul>
         </li>
       </ul>
@@ -240,43 +234,31 @@
       let dropdownBackground;
 
       function handleMouseEnter() {
-        const link = this;
-        const dropdown = link.querySelector('.dropdown');
-        if (!dropdown) {
-          return;
-        }
+        this.classList.add('trigger-enter');
+        setTimeout(() => this.classList.contains('trigger-enter') && this.classList.add('trigger-enter-active'), 150);
+        dropdownBackground.classList.add('open');
 
-        link.classList.add('trigger-enter');
-        setTimeout(() => {
-          link.classList.add('trigger-enter-active');
-        }, 150);
+        const content = this.querySelector('.dropdown');
+        const { top: navTop } = this.getBoundingClientRect();
+        const { top, left, width, height } = content.getBoundingClientRect();
 
-        const { width, height, x, y, top } = dropdown.getBoundingClientRect();
-        const { top: parentTop } = link.parentNode.getBoundingClientRect();
-
+        dropdownBackground.style.transform = `translate(${left}px, ${top - navTop}px)`;
         dropdownBackground.style.width = `${width}px`;
         dropdownBackground.style.height = `${height}px`;
-        dropdownBackground.style.transform = `translate(${x}px, ${y - parentTop}px)`;
-
-        dropdownBackground.classList.add('open');
       }
 
-      function handleMouseLeave(e) {
-        this.classList.remove('trigger-enter');
-        this.classList.remove('trigger-enter-active');
-
+      function handleMouseLeave() {
+        this.classList.remove('trigger-enter', 'trigger-enter-active');
         dropdownBackground.classList.remove('open');
       }
 
-      (function() {
-        const navLinks = [...document.querySelectorAll('.cool li')];
+      window.addEventListener('DOMContentLoaded', () => {
+        const links = document.querySelectorAll('.cool > li');
         dropdownBackground = document.querySelector('.dropdownBackground');
 
-        for (let navLink of navLinks) {
-          navLink.addEventListener('mouseover', handleMouseEnter);
-          navLink.addEventListener('mouseout', handleMouseLeave);
-        }
-      })();
+        links.forEach(l => l.addEventListener('mouseenter', handleMouseEnter));
+        links.forEach(l => l.addEventListener('mouseleave', handleMouseLeave));
+      });
     </script>
   </body>
 </html>
