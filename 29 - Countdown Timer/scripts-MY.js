@@ -1,49 +1,51 @@
-let secondsLeft = 0;
-let tickInterval;
-let timeLeftDisplay;
-let endTimeDisplay;
+let timeLeftDisplay, backAtDisplay, timerInterval;
 
-function updateDisplays() {
-  const timeMinutes = Math.floor(secondsLeft / 60);
-  const timeSeconds = secondsLeft % 60;
-  const endTime = new Date(Date.now() + secondsLeft * 1000);
-  const timeLeft = `${timeMinutes}:${timeSeconds.toString().padStart(2, '0')}`;
+const millisecondsToTimeLeft = milliseconds =>
+  `${Math.floor(milliseconds / 1000 / 60)}:${(Math.floor(milliseconds / 1000) % 60).toString().padStart(2, '0')}`;
 
-  document.title = timeLeft;
-  timeLeftDisplay.innerText = timeLeft;
-  endTimeDisplay.innerText = `Be Back At ${endTime.getHours()}:${endTime
+function updateTimer(backAt) {
+  if (backAt < Date.now()) {
+    clearInterval(timerInterval);
+    return;
+  }
+
+  timeLeftDisplay.textContent = millisecondsToTimeLeft(backAt.getTime() - Date.now());
+  document.title = millisecondsToTimeLeft(backAt.getTime() - Date.now());
+}
+
+function setTimer(seconds) {
+  clearInterval(timerInterval);
+
+  const backAt = new Date(Date.now() + seconds * 1000);
+
+  timeLeftDisplay.textContent = millisecondsToTimeLeft(backAt.getTime() - Date.now());
+  document.title = millisecondsToTimeLeft(backAt.getTime() - Date.now());
+  backAtDisplay.textContent = `Be Back At ${backAt.getHours()}:${backAt
     .getMinutes()
     .toString()
     .padStart(2, '0')}`;
 
-  secondsLeft--;
-  if (secondsLeft < 0) {
-    clearInterval(tickInterval);
-  }
+  timerInterval = setInterval(() => updateTimer(backAt), 1000);
 }
 
-function setTimer(seconds) {
-  clearInterval(tickInterval);
-
-  secondsLeft = seconds;
-  updateDisplays();
-  tickInterval = setInterval(updateDisplays, 1000);
+function handlePredefinedTimer() {
+  setTimer(this.dataset.time);
 }
 
-(function() {
-  const timerButtons = document.querySelectorAll('.timer__button');
-  const minutesForm = document.querySelector('#custom');
+function setCustomTimer(e) {
+  e.preventDefault();
+
+  setTimer(this.minutes.value * 60);
+
+  this.reset();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const buttons = document.querySelectorAll('.timer__button');
+  const customTimerForm = document.querySelector('#custom');
   timeLeftDisplay = document.querySelector('.display__time-left');
-  endTimeDisplay = document.querySelector('.display__end-time');
+  backAtDisplay = document.querySelector('.display__end-time');
 
-  timerButtons.forEach(b =>
-    b.addEventListener('click', function() {
-      setTimer(this.dataset.time);
-    })
-  );
-  minutesForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    setTimer(this.elements['minutes'].value * 60);
-  });
-})();
+  customTimerForm.addEventListener('submit', setCustomTimer);
+  buttons.forEach(b => b.addEventListener('click', handlePredefinedTimer));
+});
