@@ -21,20 +21,26 @@
     </div>
 
     <script>
-      (function() {
-        const speedController = document.querySelector('.speed');
-        const speedBar = document.querySelector('.speed-bar');
-        const video = document.querySelector('.flex');
+      const speedMin = 0.4,
+        speedMax = 4;
+      let video, speedBar;
 
-        speedController.addEventListener('mousemove', function(e) {
-          const inputRangeValue = e.offsetY / this.offsetHeight;
-          const playbackRate = 0.4 + 3.6 * inputRangeValue;
+      function changePlaybackRate(e) {
+        const { height } = this.getBoundingClientRect();
+        const speedPercentage = (e.offsetY / height) * 100;
+        const playbackRate = (speedPercentage / 100) * (speedMax - speedMin) + speedMin;
 
-          speedBar.style.height = `${inputRangeValue * 100}%`;
-          speedBar.innerText = `${playbackRate.toFixed(2)}x`;
-          video.playbackRate = playbackRate;
-        });
-      })();
+        speedBar.style.height = `${speedPercentage}%`;
+        speedBar.textContent = `${playbackRate.toFixed(2)}x`;
+        video.playbackRate = playbackRate;
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        video = document.querySelector('.wrapper video');
+        speedBar = document.querySelector('.speed-bar');
+
+        document.querySelector('.speed').addEventListener('mousemove', changePlaybackRate);
+      });
     </script>
   </body>
 </html>
