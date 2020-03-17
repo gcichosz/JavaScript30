@@ -35,19 +35,14 @@
     </div>
 
     <script>
-      let items, grabStart, grabbed;
+      const scrollCoefficient = 2.5;
+      let grabbed, grabStart, scrollStart, items;
 
       function grab(e) {
-        this.classList.add('active');
-
         grabbed = true;
-        grabStart = e.clientX;
-      }
-
-      function drop() {
-        this.classList.remove('active');
-
-        grabbed = false;
+        grabStart = e.x;
+        scrollStart = items.scrollLeft;
+        this.classList.add('active');
       }
 
       function drag(e) {
@@ -55,19 +50,24 @@
           return;
         }
 
-        const percentDragged = (grabStart - e.clientX) / items.clientWidth;
-        items.scrollLeft += items.scrollWidth * percentDragged;
-        grabStart = e.clientX;
+        items.scrollLeft = scrollStart + scrollCoefficient * (grabStart - e.x);
       }
 
-      (function() {
+      function drop() {
+        grabbed = false;
+        this.classList.remove('active');
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
         items = document.querySelector('.items');
 
         items.addEventListener('mousedown', grab);
+
         items.addEventListener('mousemove', drag);
+
         items.addEventListener('mouseup', drop);
         items.addEventListener('mouseleave', drop);
-      })();
+      });
     </script>
   </body>
 </html>
