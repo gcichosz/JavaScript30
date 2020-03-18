@@ -32,68 +32,72 @@
     </div>
 
     <script>
-      const minimumTimeout = 200;
-      const maximumTimeout = 1000;
-      const gameDurationInSeconds = 10;
+      const minTimeout = 500,
+        maxTimeout = 1200,
+        gameDurationInSeconds = 10;
+      let scoreBoard, holes, moles, nextMoleTimeout, gameEndTime;
 
-      const holes = [...document.querySelectorAll('.hole')];
-      const scoreBoard = document.querySelector('.score');
-      const moles = document.querySelectorAll('.mole');
+      function* randomGenerator(min, max) {
+        let previous, next;
+        while (true) {
+          do {
+            next = min + Math.floor(Math.random() * max);
+          } while (previous === next);
+          previous = next;
+          yield next;
+        }
+      }
 
-      let gameEndTime;
-      let hideMoleTimeout;
-      let showMoleTimeout;
+      const holeGenerator = randomGenerator(0, 6);
+      const timeoutGenerator = randomGenerator(minTimeout, maxTimeout);
 
-      function showNextMole(previousHoleIndex) {
+      function whackMole() {
+        scoreBoard.textContent = +scoreBoard.textContent + 1;
+        this.parentNode.classList.remove('up');
+        clearTimeout(nextMoleTimeout);
+        showMole();
+      }
+
+      function cleanUpPreviousMole() {
+        holes.forEach(h => h.classList.remove('up'));
+        moles.forEach(m => m.removeEventListener('click', whackMole, { once: true }));
+      }
+
+      function setupCurrentMole() {
+        const holeId = holeGenerator.next().value;
+        moles[holeId].addEventListener('click', whackMole, { once: true });
+        holes[holeId].classList.add('up');
+      }
+
+      function scheduleNextMole() {
+        nextMoleTimeout = setTimeout(showMole, timeoutGenerator.next().value);
+      }
+
+      function showMole() {
+        cleanUpPreviousMole();
+
         if (Date.now() >= gameEndTime) {
           return;
         }
 
-        if (holes.some(h => h.classList.contains('up'))) {
-          return;
-        }
-
-        let holeIndex = Math.floor(Math.random() * holes.length);
-        while (holeIndex === previousHoleIndex) {
-          holeIndex = Math.floor(Math.random() * holes.length);
-        }
-        const moleTimeout = Math.floor(Math.random() * (maximumTimeout - minimumTimeout + 1)) + minimumTimeout;
-
-        moles[holeIndex].addEventListener(
-          'click',
-          function() {
-            scoreBoard.textContent = ++scoreBoard.textContent;
-
-            hideMole(holeIndex);
-            clearTimeout(hideMoleTimeout);
-
-            clearTimeout(showMoleTimeout);
-            showNextMole(holeIndex);
-          },
-          { once: true }
-        );
-
-        holes[holeIndex].classList.add('up');
-
-        hideMoleTimeout = setTimeout(hideMole, moleTimeout, holeIndex);
-        showMoleTimeout = setTimeout(showNextMole, moleTimeout, holeIndex);
-      }
-
-      function hideMole(holeIndex) {
-        holes[holeIndex].classList.remove('up');
+        setupCurrentMole();
+        scheduleNextMole();
       }
 
       function startGame() {
-        clearTimeout(showMoleTimeout);
-        clearTimeout(hideMoleTimeout);
-        for (let i = 0; i < holes.length; i++) {
-          hideMole(i);
-        }
+        scoreBoard.textContent = 0;
+        clearTimeout(nextMoleTimeout);
+        nextMoleTimeout = null;
 
         gameEndTime = Date.now() + gameDurationInSeconds * 1000;
-        scoreBoard.textContent = 0;
-        showNextMole();
+        showMole();
       }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        scoreBoard = document.querySelector('.score');
+        moles = [...document.querySelectorAll('.mole')];
+        holes = [...document.querySelectorAll('.hole')];
+      });
     </script>
   </body>
 </html>
